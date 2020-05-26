@@ -27,6 +27,10 @@ public class ChatMessage implements Serializable {
      * 创建时间
      */
     private Date createdTime;
+    /**
+     * 头像信息
+     */
+    private String icon;
 
     /**
      * 三种状态
