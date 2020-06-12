@@ -1,7 +1,6 @@
 package com.hnxx.zyb1.controller;
 
 
-//import com.hnxx.zyb1.config.WebSocketEventListener;
 
 import com.hnxx.zyb1.model.ChatMessage;
 import com.hnxx.zyb1.server.ChatService;
@@ -14,12 +13,11 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -93,13 +91,21 @@ public class ChatController {
      * 为3 代表查询当天的聊天信息
      *
      * @return
-     * @GetMapping("/chatMessage/{date}") public Result<Object>  chatMessage(@PathVariable("date") Date date){
+     *
+     *    @RequestMapping("/chatMessage")
+     *     @ResponseBody
+     *     public Result<Object> chatMessage(@RequestParam("type") Integer type) {
+     *
+     *   @GetMapping("/chatMessage/{type}")
+     *   @ResponseBody
+     *   public Result<Object>  chatMessage(@PathVariable("type") Integer type){
      */
-    @RequestMapping("/chatMessage")
-    @ResponseBody
-    public Result<Object> chatMessage(@RequestParam("type") Integer type) {
+      @GetMapping("/chatMessage/{type}")
+      @ResponseBody
+      public List<ChatMessage> chatMessage(@PathVariable("type") Integer type){
 
-        return new Result<>(chatService.allChat(type));
+        return chatService.allChat(type);
+//        return new Result<>();
     }
 
     /***
@@ -108,8 +114,8 @@ public class ChatController {
      */
     @RequestMapping("/chatUser")
     @ResponseBody
-    public Result<Object> chatUser() {
-        return new Result<>(currentUserSet);
+    public Set<String> chatUser() {
+        return currentUserSet;
     }
 
 

@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.hnxx.zyb1</groupId>
-    <artifactId>clms</artifactId>
+    <artifactId>clms-chat</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>clms</name>
     <description>聊天专属 后台接口 for Spring Boot</description>
