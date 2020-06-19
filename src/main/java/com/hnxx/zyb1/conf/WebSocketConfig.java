@@ -20,11 +20,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // 订阅Broker名称,接受消息用户必须以这个开头的路径才能收到消息
-        config.enableSimpleBroker("/user", "/topic", "/queue");
+        config.enableSimpleBroker( "/topic", "/chat");
         // 全局使用的消息前缀（客户端订阅路径上会体现出来），客户端主动发送消息会以这里配置的前缀访问 @MessageMapping 配置的路径
         config.setApplicationDestinationPrefixes("/app");
         // 点对点使用的订阅前缀（客户端订阅路径上会体现出来），不设置的话，默认也是/user/
-        config.setUserDestinationPrefix("/user");
+//        config.setUserDestinationPrefix("/user");
     }
 
     /**

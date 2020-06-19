@@ -5,6 +5,7 @@ package com.hnxx.zyb1.controller;
 import com.hnxx.zyb1.model.ChatMessage;
 import com.hnxx.zyb1.server.ChatService;
 import com.hnxx.zyb1.utils.Result;
+import com.hnxx.zyb1.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -12,6 +13,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +38,10 @@ public class ChatController {
 
  /*   @Resource
     private SimpMessageSendingOperations messagingTemplate;*/
+
+    @Resource
+    private SimpMessagingTemplate simpMessagingTemplate;
+
 
     /**
      * 群发给所有在聊天室的用户   并将信息存储置数据库用于消息记录
@@ -116,6 +122,17 @@ public class ChatController {
     @ResponseBody
     public Set<String> chatUser() {
         return currentUserSet;
+    }
+
+    /***
+     * 实现点对点聊天
+     */
+    @MessageMapping("/chat.oneToOne")
+    public void oneToOneChat(@Payload ChatMessage chatMessage){
+        String receiver = chatMessage.getReceiver();
+        if(!StringUtils.isNullOrEmpty(receiver)){
+        simpMessagingTemplate.convertAndSend("/chat/point/"+receiver,chatMessage);
+        }
     }
 
 

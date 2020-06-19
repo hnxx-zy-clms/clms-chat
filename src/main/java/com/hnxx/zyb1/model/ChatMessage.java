@@ -23,7 +23,10 @@ public class ChatMessage implements Serializable {
     /**
      * 消息发送者
      */
-    private String sender;
+    private String sender; /**
+     * 消息接收者
+     */
+    private String receiver;
     /**
      * 创建时间
      */
