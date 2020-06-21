@@ -11,7 +11,7 @@
     <groupId>com.hnxx.zyb1</groupId>
     <artifactId>clms-chat</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>clms</name>
+    <name>clms-chat</name>
     <description>聊天专属 后台接口 for Spring Boot</description>
 
     <properties>
