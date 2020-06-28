@@ -1,18 +1,15 @@
 package com.hnxx.zyb1.controller;
 
 
-
 import com.hnxx.zyb1.model.ChatMessage;
+import com.hnxx.zyb1.model.ChatPointMessage;
 import com.hnxx.zyb1.server.ChatService;
-import com.hnxx.zyb1.utils.Result;
 import com.hnxx.zyb1.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +55,7 @@ public class ChatController {
     }
 
     /**
-     * 群发通知所有人  新进入聊天室 的用户  并将信息存储置数据库用于消息记录
+     * 用户上线，查看卫读取的私聊信息  新进入聊天室 的用户  并将信息存储置数据库用于消息记录
      *
      * @param chatMessage
      * @param
@@ -68,7 +65,7 @@ public class ChatController {
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage) {
         String sender = chatMessage.getSender();
-        String type = chatMessage.getType()+"";
+        String type = chatMessage.getType() + "";
         if ("JOIN".equals(type)) {
             chatMessage.setContent("进入聊天室！！");
             currentUserSet.add(sender);
@@ -79,9 +76,9 @@ public class ChatController {
 
     @MessageMapping("/chat.leftUser")
     @SendTo("/topic/public")
-    public ChatMessage  leftUser(@Payload ChatMessage chatMessage) {
+    public ChatMessage leftUser(@Payload ChatMessage chatMessage) {
         String sender = chatMessage.getSender();
-        String type = chatMessage.getType()+"";
+        String type = chatMessage.getType() + "";
         if ("LEAVE".equals(type)) {
             chatMessage.setContent("离开聊天室！！");
             currentUserSet.remove(sender);
@@ -97,21 +94,16 @@ public class ChatController {
      * 为3 代表查询当天的聊天信息
      *
      * @return
-     *
-     *    @RequestMapping("/chatMessage")
-     *     @ResponseBody
-     *     public Result<Object> chatMessage(@RequestParam("type") Integer type) {
-     *
-     *   @GetMapping("/chatMessage/{type}")
-     *   @ResponseBody
-     *   public Result<Object>  chatMessage(@PathVariable("type") Integer type){
+     * @RequestMapping("/chatMessage")
+     * @ResponseBody public Result<Object> chatMessage(@RequestParam("type") Integer type) {
+     * @GetMapping("/chatMessage/{type}")
+     * @ResponseBody public Result<Object>  chatMessage(@PathVariable("type") Integer type){
      */
-      @GetMapping("/chatMessage/{type}")
-      @ResponseBody
-      public List<ChatMessage> chatMessage(@PathVariable("type") Integer type){
+    @GetMapping("/chatMessage/{type}")
+    @ResponseBody
+    public List<ChatMessage> chatMessage(@PathVariable("type") Integer type) {
 
         return chatService.allChat(type);
-//        return new Result<>();
     }
 
     /***
@@ -124,14 +116,51 @@ public class ChatController {
         return currentUserSet;
     }
 
+
+
     /***
      * 实现点对点聊天
      */
     @MessageMapping("/chat.oneToOne")
-    public void oneToOneChat(@Payload ChatMessage chatMessage){
-        String receiver = chatMessage.getReceiver();
-        if(!StringUtils.isNullOrEmpty(receiver)){
-        simpMessagingTemplate.convertAndSend("/chat/point/"+receiver,chatMessage);
+    public void oneToOneChat(@Payload ChatPointMessage chatPointMessage) {
+        String receiver = chatPointMessage.getReceiver();
+        String sender = chatPointMessage.getSender();
+        if (!StringUtils.isNullOrEmpty(receiver)) {
+            chatService.chatPointSave(chatPointMessage);
+            simpMessagingTemplate.convertAndSend("/chat/point/" + sender, chatPointMessage);
+            simpMessagingTemplate.convertAndSend("/chat/point/" + receiver, chatPointMessage);
+        }
+    }
+
+    /**
+     * 用户上线，查看未读取的私聊信息
+     *
+     * @param chatPointMessage
+     * @param
+     * @return
+     */
+    @MessageMapping("/chat.userUp")
+//    @SendTo("/topic/public")
+    public void userUp(@Payload ChatPointMessage chatPointMessage) {
+        String sender = chatPointMessage.getSender();
+        String type = chatPointMessage.getType() + "";
+        List<ChatPointMessage> pointMessageList = null;
+        if ("JOIN".equals(type)) {
+            pointMessageList = chatService.pointStateMessage(sender);
+        }
+        for (ChatPointMessage pointMessage : pointMessageList) {
+            simpMessagingTemplate.convertAndSend("/chat/point/" + sender, pointMessage);
+            simpMessagingTemplate.convertAndSend("/chat/point/" + pointMessage.getSender(), pointMessage);
+        }
+    }
+    /***
+     * 标记已经查看的消息
+     * @return
+     */
+    @RequestMapping("/stateMessage")
+    public void stateMessage(@RequestBody List<ChatPointMessage> oneToOneMessage) {
+        for (ChatPointMessage chatPointMessage : oneToOneMessage) {
+            chatService.clearPointMessage(chatPointMessage);
         }
     }
 

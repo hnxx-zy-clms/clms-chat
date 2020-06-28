@@ -2,6 +2,7 @@ package com.hnxx.zyb1.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,7 +11,7 @@ import java.util.Date;
  * @date 2020/3/25 17:23
  */
 @Data
-public class ChatMessage implements Serializable {
+public class ChatPointMessage implements Serializable {
     private static final long serialVersionUID = -8724518310083269150L;
     /**
      * 消息类型
@@ -40,7 +41,7 @@ public class ChatMessage implements Serializable {
     /**
      * 消息状态
      */
-    private String state;
+    private Integer state;
 
     /**
      * 三种状态
@@ -48,6 +49,6 @@ public class ChatMessage implements Serializable {
     public enum MessageType {
         CHAT,
         JOIN,
-        LEAVE
+        LEAVE,
     }
 }

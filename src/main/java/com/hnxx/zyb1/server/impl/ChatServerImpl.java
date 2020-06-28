@@ -3,6 +3,7 @@ package com.hnxx.zyb1.server.impl;
 
 import com.hnxx.zyb1.mapper.ChatMapper;
 import com.hnxx.zyb1.model.ChatMessage;
+import com.hnxx.zyb1.model.ChatPointMessage;
 import com.hnxx.zyb1.server.ChatService;
 import com.hnxx.zyb1.utils.StringUtils;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class ChatServerImpl implements ChatService {
         }
     }
 
+
     /**
      * 查询聊天记录
      *
@@ -56,13 +58,40 @@ public class ChatServerImpl implements ChatService {
             return chatMapper.allChat(startTime, endTime);
         } else if (type == 2) {
 
-            startTime = new Date(currentTimeMillis - 2*60 * 60 * 1000);
+            startTime = new Date(currentTimeMillis - 2 * 60 * 60 * 1000);
             return chatMapper.allChat(startTime, endTime);
         } else if (type == 3) {
-            startTime = new Date(currentTimeMillis - 24*60 * 60 * 1000);
+            startTime = new Date(currentTimeMillis - 24 * 60 * 60 * 1000);
             return chatMapper.allChat(startTime, endTime);
         }
         return null;
 
+    }
+
+
+    @Override
+    public void chatPointSave(ChatPointMessage chatPointMessage) {
+        if (!StringUtils.isNullOrEmpty(chatPointMessage)) {
+            chatPointMessage.setCreatedTime(new Date(System.currentTimeMillis()));
+            chatPointMessage.setState(0);
+            chatMapper.chatPointSave(chatPointMessage);
+        }
+    }
+
+    @Override
+    public List<ChatPointMessage> pointStateMessage(String sender) {
+        List<ChatPointMessage> pointMessageList = null;
+        if (!StringUtils.isNullOrEmpty(sender)) {
+            pointMessageList = chatMapper.pointStateMessage(sender);
+        }
+        return pointMessageList;
+    }
+
+
+    @Override
+    public void clearPointMessage(ChatPointMessage chatPointMessage) {
+        if (!StringUtils.isNullOrEmpty(chatPointMessage)) {
+        chatMapper.deletePointMeaasge(chatPointMessage.getSender(),chatPointMessage.getReceiver());
+        }
     }
 }
